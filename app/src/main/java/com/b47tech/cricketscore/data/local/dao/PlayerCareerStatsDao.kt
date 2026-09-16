@@ -18,6 +18,9 @@ interface PlayerCareerStatsDao {
     @Query("SELECT * FROM player_career_stats ORDER BY totalRuns DESC")
     fun getAllPlayerStatsByRunsFlow(): Flow<List<PlayerCareerStatsEntity>>
 
+    @Query("SELECT * FROM player_career_stats")
+    suspend fun getAllPlayerStatsList(): List<PlayerCareerStatsEntity>
+
     @Query("SELECT * FROM player_career_stats ORDER BY wicketsTaken DESC")
     fun getAllPlayerStatsByWicketsFlow(): Flow<List<PlayerCareerStatsEntity>>
 

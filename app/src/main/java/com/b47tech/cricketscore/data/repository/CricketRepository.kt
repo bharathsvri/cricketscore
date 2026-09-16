@@ -14,4 +14,7 @@ interface CricketRepository {
     suspend fun loadEngineFromMatchEntity(entity: MatchEntity): CricketEngine
     suspend fun deleteMatch(id: String)
     fun getAllPlayerCareerStatsFlow(): Flow<List<PlayerCareerStatsEntity>>
+    suspend fun getAllMatchesList(): List<MatchEntity>
+    suspend fun getAllPlayerStatsList(): List<PlayerCareerStatsEntity>
+    suspend fun restoreBackup(matches: List<MatchEntity>, stats: List<PlayerCareerStatsEntity>)
 }

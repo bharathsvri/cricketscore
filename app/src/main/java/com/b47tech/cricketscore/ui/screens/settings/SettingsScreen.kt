@@ -1,5 +1,9 @@
 package com.b47tech.cricketscore.ui.screens.settings
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -7,10 +11,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.SportsCricket
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,9 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.b47tech.cricketscore.core.ads.AdManager
+import com.b47tech.cricketscore.core.export.BackupManager
 import com.b47tech.cricketscore.ui.components.AdBanner
 import com.b47tech.cricketscore.ui.theme.*
 
@@ -31,6 +42,27 @@ fun SettingsScreen(
     onBack: () -> Unit
 ) {
     val settings by viewModel.settings.collectAsState()
+    val context = LocalContext.current
+    var showBackupAdDialog by remember { mutableStateOf(false) }
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            val json = BackupManager.readBackupFromUri(context, uri)
+            if (json != null) {
+                viewModel.restoreBackup(json) { result ->
+                    result.onSuccess { count ->
+                        Toast.makeText(context, "Successfully restored $count matches!", Toast.LENGTH_LONG).show()
+                    }.onFailure {
+                        Toast.makeText(context, "Failed to restore backup: invalid file format.", Toast.LENGTH_LONG).show()
+                    }
+                }
+            } else {
+                Toast.makeText(context, "Could not read backup file.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -280,7 +312,111 @@ fun SettingsScreen(
                 }
             }
 
-            // 4. Privacy & Data Safety
+            // 4. Data Backup & Restore
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = DarkSurface)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(Icons.Default.Storage, contentDescription = "Backup", tint = CricketGold)
+                        Text(
+                            text = "Data Backup & Restore",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = TextWhite,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Text(
+                        text = "Export a full JSON backup of all your matches, teams, and player statistics so you never lose your scoring history, or restore an existing backup.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = { showBackupAdDialog = true },
+                            modifier = Modifier.weight(1.2f),
+                            colors = ButtonDefaults.buttonColors(containerColor = CricketGold)
+                        ) {
+                            Icon(Icons.Default.Backup, contentDescription = null, tint = DarkBg, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Backup (Rewarded)", color = DarkBg, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+
+                        OutlinedButton(
+                            onClick = { filePickerLauncher.launch("application/json") },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = TextWhite)
+                        ) {
+                            Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Restore", fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
+
+            if (showBackupAdDialog) {
+                AlertDialog(
+                    onDismissRequest = { showBackupAdDialog = false },
+                    title = {
+                        Text("Export Full Match Backup", fontWeight = FontWeight.Bold, color = TextWhite)
+                    },
+                    text = {
+                        Text(
+                            "Watch a short sponsored video to export a complete JSON backup of all your match and career statistics.",
+                            color = TextMuted
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showBackupAdDialog = false
+                                val activity = context as? Activity
+                                if (activity != null) {
+                                    AdManager.getInstance().showRewardedAd(
+                                        activity = activity,
+                                        onRewardEarned = {
+                                            viewModel.exportBackup(context) { file ->
+                                                BackupManager.shareBackupFile(context, file)
+                                            }
+                                        }
+                                    )
+                                } else {
+                                    viewModel.exportBackup(context) { file ->
+                                        BackupManager.shareBackupFile(context, file)
+                                    }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = CricketGreenPrimary)
+                        ) {
+                            Text("Watch & Backup", color = TextWhite, fontWeight = FontWeight.Bold)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showBackupAdDialog = false }) {
+                            Text("Cancel", color = TextMuted)
+                        }
+                    },
+                    containerColor = DarkCard
+                )
+            }
+
+            // 5. Privacy & Data Safety
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),

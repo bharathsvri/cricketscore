@@ -234,4 +234,24 @@ class CricketRepositoryImpl(
             playerCareerStatsDao.insertOrUpdate(updated)
         }
     }
+
+    override suspend fun getAllMatchesList(): List<MatchEntity> = withContext(Dispatchers.IO) {
+        matchDao.getAllMatchesList()
+    }
+
+    override suspend fun getAllPlayerStatsList(): List<PlayerCareerStatsEntity> = withContext(Dispatchers.IO) {
+        playerCareerStatsDao.getAllPlayerStatsList()
+    }
+
+    override suspend fun restoreBackup(
+        matches: List<MatchEntity>,
+        stats: List<PlayerCareerStatsEntity>
+    ) = withContext(Dispatchers.IO) {
+        if (matches.isNotEmpty()) {
+            matchDao.insertMatches(matches)
+        }
+        if (stats.isNotEmpty()) {
+            playerCareerStatsDao.insertAll(stats)
+        }
+    }
 }

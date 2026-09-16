@@ -65,10 +65,13 @@ Record all official cricket dismissals with fielder assistance:
 - Complete extras breakdown (wides, no-balls, byes, leg byes).
 - Share full match scorecards directly to WhatsApp, Telegram, or social apps.
 
-• Career Player Statistics
-Accumulate career records for all players across matches:
-- Batting: Total runs, innings, highest score, 50s, 100s, batting average, and strike rate.
-- Bowling: Total wickets, overs bowled, runs conceded, economy rate, and best bowling figures.
+• Professional PDF Scorecard Export & Sharing
+- Export crisp, multi-page vector PDF scorecards with complete batting & bowling tables, fall of wickets, and result summary.
+- Share match PDFs instantly to WhatsApp, Google Drive, Email, or save directly to your device.
+
+• Full Database Backup & Restore
+- Export a complete JSON backup of all your matches, teams, and player stats so your records are never lost.
+- Seamlessly restore your match history on any Android device.
 
 • 100% Offline & Private
 B47 Cricket Score operates entirely offline. No user registration, phone numbers, or account sign-ins are ever required. All your match scores and rosters remain private on your device.

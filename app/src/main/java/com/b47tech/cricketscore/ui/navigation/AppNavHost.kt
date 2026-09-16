@@ -231,7 +231,7 @@ fun AppNavHost(
 
         // 9. Settings / About
         composable(Screen.Settings.route) {
-            val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory(settingsRepository))
+            val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory(settingsRepository, repository))
             SettingsScreen(
                 viewModel = settingsViewModel,
                 onBack = { navController.popBackStack() }

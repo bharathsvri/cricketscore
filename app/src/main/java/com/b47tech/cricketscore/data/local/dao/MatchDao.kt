@@ -13,8 +13,14 @@ interface MatchDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdateMatch(match: MatchEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMatches(matches: List<MatchEntity>)
+
     @Query("SELECT * FROM matches ORDER BY updatedAt DESC")
     fun getAllMatchesFlow(): Flow<List<MatchEntity>>
+
+    @Query("SELECT * FROM matches ORDER BY updatedAt DESC")
+    suspend fun getAllMatchesList(): List<MatchEntity>
 
     @Query("SELECT * FROM matches WHERE status != 'COMPLETED' AND status != 'ABANDONED' ORDER BY updatedAt DESC LIMIT 1")
     fun getActiveMatchFlow(): Flow<MatchEntity?>

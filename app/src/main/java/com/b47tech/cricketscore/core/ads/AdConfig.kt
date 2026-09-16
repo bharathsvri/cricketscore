@@ -9,7 +9,7 @@ object AdConfig {
     // Production ad unit IDs
     var bannerAdUnitId: String = "ca-app-pub-2828717457589648/3631101662"
     var interstitialAdUnitId: String = "ca-app-pub-2828717457589648/7378774984"
-    var rewardedAdUnitId: String = TEST_REWARDED_AD_UNIT_ID
+    var rewardedAdUnitId: String = "ca-app-pub-2828717457589648/4882630278"
 
     // Ad policy rules
     const val INTERSTITIAL_COOLDOWN_MS = 60_000L // Minimum 60 seconds between interstitials

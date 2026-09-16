@@ -1,5 +1,6 @@
 package com.b47tech.cricketscore.ui.screens.scorecard
 
+import android.app.Activity
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -7,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,7 +18,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.b47tech.cricketscore.core.ads.AdManager
 import com.b47tech.cricketscore.core.engine.InningsScorecard
+import com.b47tech.cricketscore.core.export.PdfScorecardExporter
 import com.b47tech.cricketscore.ui.components.AdBanner
 import com.b47tech.cricketscore.ui.theme.*
 import java.util.Locale
@@ -30,6 +34,7 @@ fun ScorecardScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     var selectedTab by remember { mutableStateOf(0) }
+    var showPdfRewardDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     LaunchedEffect(matchId) {
@@ -91,8 +96,11 @@ fun ScorecardScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showPdfRewardDialog = true }) {
+                        Icon(Icons.Default.PictureAsPdf, contentDescription = "Export PDF", tint = CricketGold)
+                    }
                     IconButton(onClick = { shareScorecardText() }) {
-                        Icon(Icons.Default.Share, contentDescription = "Share", tint = CricketGold)
+                        Icon(Icons.Default.Share, contentDescription = "Share", tint = TextWhite)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = CricketGreenDark)
@@ -132,6 +140,99 @@ fun ScorecardScreen(
                             fontSize = 14.sp
                         )
                     }
+                }
+
+                // Quick Export Bar
+                Surface(
+                    color = DarkCard,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { shareScorecardText() },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = TextWhite)
+                        ) {
+                            Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Share Text", fontSize = 12.sp)
+                        }
+
+                        Button(
+                            onClick = { showPdfRewardDialog = true },
+                            modifier = Modifier.weight(1.3f),
+                            colors = ButtonDefaults.buttonColors(containerColor = CricketGold)
+                        ) {
+                            Icon(Icons.Default.PictureAsPdf, contentDescription = null, tint = DarkBg, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Export PDF (HD)", color = DarkBg, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                    }
+                }
+
+                if (showPdfRewardDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showPdfRewardDialog = false },
+                        title = {
+                            Text("Export PDF Scorecard", fontWeight = FontWeight.Bold, color = TextWhite)
+                        },
+                        text = {
+                            Text(
+                                "Watch a short sponsored video to generate and export the complete, high-definition match scorecard as a PDF file.",
+                                color = TextMuted
+                            )
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    showPdfRewardDialog = false
+                                    val activity = context as? Activity
+                                    if (activity != null) {
+                                        AdManager.getInstance().showRewardedAd(
+                                            activity = activity,
+                                            onRewardEarned = {
+                                                val pdfFile = PdfScorecardExporter.exportAndShareScorecard(
+                                                    context = context,
+                                                    matchTitle = state.matchTitle,
+                                                    resultSummary = state.resultSummary,
+                                                    innings1 = state.innings1Scorecard,
+                                                    innings2 = state.innings2Scorecard
+                                                )
+                                                if (pdfFile != null) {
+                                                    PdfScorecardExporter.sharePdfFile(context, pdfFile, state.matchTitle)
+                                                }
+                                            }
+                                        )
+                                    } else {
+                                        val pdfFile = PdfScorecardExporter.exportAndShareScorecard(
+                                            context = context,
+                                            matchTitle = state.matchTitle,
+                                            resultSummary = state.resultSummary,
+                                            innings1 = state.innings1Scorecard,
+                                            innings2 = state.innings2Scorecard
+                                        )
+                                        if (pdfFile != null) {
+                                            PdfScorecardExporter.sharePdfFile(context, pdfFile, state.matchTitle)
+                                        }
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = CricketGreenPrimary)
+                            ) {
+                                Text("Watch & Export PDF", color = TextWhite, fontWeight = FontWeight.Bold)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showPdfRewardDialog = false }) {
+                                Text("Cancel", color = TextMuted)
+                            }
+                        },
+                        containerColor = DarkCard
+                    )
                 }
 
                 // Innings Tab Row
