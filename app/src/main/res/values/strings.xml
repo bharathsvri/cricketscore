@@ -2,9 +2,10 @@
     <string name="app_name">B47 Cricket Score</string>
     <string name="developer_name">B47 Tech</string>
     
-    <!-- AdMob Configuration (Google Test IDs by default, replaceable in production) -->
-    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
-    <string name="admob_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <!-- AdMob Production Configuration -->
+    <string name="admob_app_id">ca-app-pub-2828717457589648~1473868300</string>
+    <string name="admob_banner_ad_unit_id">ca-app-pub-2828717457589648/3631101662</string>
+    <string name="admob_interstitial_ad_unit_id">ca-app-pub-2828717457589648/7378774984</string>
     
     <!-- Common Navigation & Actions -->
     <string name="home">Home</string>

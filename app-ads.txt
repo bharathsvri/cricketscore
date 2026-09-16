@@ -1,0 +1,4 @@
+# app-ads.txt for B47 Cricket Score (B47 Tech)
+# Place this file at the root of your developer website (e.g. https://yourdomain.com/app-ads.txt)
+# The domain must match the website URL provided in your Google Play Store listing.
+google.com, pub-2828717457589648, DIRECT, f08c47fec0942fa0
