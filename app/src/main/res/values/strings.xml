@@ -1,0 +1,102 @@
+<resources>
+    <string name="app_name">B47 Cricket Score</string>
+    <string name="developer_name">B47 Tech</string>
+    
+    <!-- AdMob Configuration (Google Test IDs by default, replaceable in production) -->
+    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="admob_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    
+    <!-- Common Navigation & Actions -->
+    <string name="home">Home</string>
+    <string name="history">History</string>
+    <string name="stats">Player Stats</string>
+    <string name="settings">Settings</string>
+    <string name="new_match">New Match</string>
+    <string name="resume_match">Resume Match</string>
+    <string name="scorecard">Scorecard</string>
+    <string name="undo">Undo</string>
+    <string name="share">Share Match</string>
+    <string name="done">Done</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="ok">OK</string>
+    <string name="delete">Delete</string>
+    <string name="save">Save</string>
+    <string name="start_scoring">Start Scoring</string>
+    
+    <!-- Match Setup -->
+    <string name="match_setup">Match Setup</string>
+    <string name="team_a">Team 1</string>
+    <string name="team_b">Team 2</string>
+    <string name="team_a_name">Team 1 Name</string>
+    <string name="team_b_name">Team 2 Name</string>
+    <string name="total_overs">Total Overs</string>
+    <string name="players_per_team">Players per Team</string>
+    <string name="ball_type">Ball Type</string>
+    <string name="tennis">Tennis</string>
+    <string name="leather">Leather</string>
+    <string name="add_player">Add Player</string>
+    <string name="player_name">Player Name</string>
+    
+    <!-- Toss -->
+    <string name="toss">Toss</string>
+    <string name="who_won_toss">Who won the toss?</string>
+    <string name="elected_to">Elected to?</string>
+    <string name="bat">Bat</string>
+    <string name="bowl">Bowl</string>
+    
+    <!-- Openers Selection -->
+    <string name="select_openers">Select Openers</string>
+    <string name="striker">Striker (*)</string>
+    <string name="non_striker">Non-Striker</string>
+    <string name="opening_bowler">Opening Bowler</string>
+    <string name="next_batsman">Next Batsman</string>
+    <string name="next_bowler">Select Bowler for Next Over</string>
+    
+    <!-- Scoring Pad -->
+    <string name="dot">0</string>
+    <string name="one">1</string>
+    <string name="two">2</string>
+    <string name="three">3</string>
+    <string name="four">4</string>
+    <string name="six">6</string>
+    <string name="wide">Wide</string>
+    <string name="no_ball">No Ball</string>
+    <string name="bye">Bye</string>
+    <string name="leg_bye">Leg Bye</string>
+    <string name="wicket">Wicket</string>
+    <string name="free_hit">FREE HIT</string>
+    <string name="crr">CRR</string>
+    <string name="rrr">RRR</string>
+    <string name="overs">Overs</string>
+    <string name="target">Target</string>
+    <string name="this_over">This Over</string>
+    <string name="swap_strike">Swap Strike</string>
+    <string name="retire_hurt">Retire Batter</string>
+    
+    <!-- Wicket Dialog -->
+    <string name="fall_of_wicket">Fall of Wicket</string>
+    <string name="how_out">How Out?</string>
+    <string name="bowled">Bowled</string>
+    <string name="caught">Caught</string>
+    <string name="run_out">Run Out</string>
+    <string name="lbw">LBW</string>
+    <string name="stumped">Stumped</string>
+    <string name="hit_wicket">Hit Wicket</string>
+    <string name="fielder_catcher">Fielder / Catcher</string>
+    <string name="who_was_run_out">Who was Run Out?</string>
+    
+    <!-- Result / Status -->
+    <string name="innings_break">Innings Break</string>
+    <string name="match_ended">Match Ended</string>
+    <string name="player_of_match">Player of the Match</string>
+    <string name="won_by">won by</string>
+    <string name="match_tied">Match Tied!</string>
+    
+    <!-- Settings / About -->
+    <string name="about_app">About B47 Cricket Score</string>
+    <string name="version">Version 1.0.0</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="offline_note">All your match data is safely stored offline on your device.</string>
+</resources>

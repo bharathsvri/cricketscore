@@ -1,0 +1,19 @@
+<resources>
+    <color name="cricket_green_primary">#0F5132</color>
+    <color name="cricket_green_dark">#0A3622</color>
+    <color name="cricket_green_light">#198754</color>
+    <color name="cricket_accent_gold">#FFB300</color>
+    <color name="cricket_accent_gold_dark">#FF8F00</color>
+    
+    <color name="boundary_four">#1976D2</color>
+    <color name="boundary_six">#7B1FA2</color>
+    <color name="wicket_red">#D32F2F</color>
+    <color name="extra_amber">#E65100</color>
+    
+    <color name="dark_bg">#121614</color>
+    <color name="dark_surface">#1A221E</color>
+    <color name="dark_surface_variant">#24302A</color>
+    
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+</resources>
