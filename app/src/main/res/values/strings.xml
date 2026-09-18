@@ -7,6 +7,7 @@
     <string name="admob_banner_ad_unit_id">ca-app-pub-2828717457589648/3631101662</string>
     <string name="admob_interstitial_ad_unit_id">ca-app-pub-2828717457589648/7378774984</string>
     <string name="admob_rewarded_ad_unit_id">ca-app-pub-2828717457589648/4882630278</string>
+    <string name="privacy_policy_url">https://bharathsvri.github.io/cricketscore/</string>
     
     <!-- Common Navigation & Actions -->
     <string name="home">Home</string>

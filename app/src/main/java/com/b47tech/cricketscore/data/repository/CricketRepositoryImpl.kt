@@ -1,10 +1,12 @@
 package com.b47tech.cricketscore.data.repository
 
+import androidx.room.withTransaction
 import com.b47tech.cricketscore.core.engine.BallEvent
 import com.b47tech.cricketscore.core.engine.CricketEngine
 import com.b47tech.cricketscore.core.engine.MatchStatus
 import com.b47tech.cricketscore.core.engine.Player
 import com.b47tech.cricketscore.core.engine.Team
+import com.b47tech.cricketscore.data.local.CricketDatabase
 import com.b47tech.cricketscore.data.local.dao.MatchDao
 import com.b47tech.cricketscore.data.local.dao.PlayerCareerStatsDao
 import com.b47tech.cricketscore.data.local.entity.MatchEntity
@@ -17,7 +19,8 @@ import kotlinx.serialization.json.Json
 
 class CricketRepositoryImpl(
     private val matchDao: MatchDao,
-    private val playerCareerStatsDao: PlayerCareerStatsDao
+    private val playerCareerStatsDao: PlayerCareerStatsDao,
+    private val database: CricketDatabase? = null
 ) : CricketRepository {
 
     private val json = Json {
@@ -99,50 +102,20 @@ class CricketRepositoryImpl(
         engine.innings1Balls.addAll(balls1)
         engine.innings2Balls.addAll(balls2)
 
-        // Restore engine state via reflection or internal restoration
-        val statusField = CricketEngine::class.java.getDeclaredField("status")
-        statusField.isAccessible = true
-        statusField.set(engine, MatchStatus.valueOf(entity.status))
-
-        val inningsNumField = CricketEngine::class.java.getDeclaredField("currentInningsNumber")
-        inningsNumField.isAccessible = true
-        inningsNumField.set(engine, entity.currentInnings)
-
-        val targetField = CricketEngine::class.java.getDeclaredField("targetScore")
-        targetField.isAccessible = true
-        targetField.set(engine, entity.targetScore)
-
-        val strikerField = CricketEngine::class.java.getDeclaredField("strikerId")
-        strikerField.isAccessible = true
-        strikerField.set(engine, entity.strikerId)
-
-        val nonStrikerField = CricketEngine::class.java.getDeclaredField("nonStrikerId")
-        nonStrikerField.isAccessible = true
-        nonStrikerField.set(engine, entity.nonStrikerId)
-
-        val currentBowlerField = CricketEngine::class.java.getDeclaredField("currentBowlerId")
-        currentBowlerField.isAccessible = true
-        currentBowlerField.set(engine, entity.currentBowlerId)
-
-        val prevBowlerField = CricketEngine::class.java.getDeclaredField("previousBowlerId")
-        prevBowlerField.isAccessible = true
-        prevBowlerField.set(engine, entity.previousBowlerId)
-
-        val freeHitField = CricketEngine::class.java.getDeclaredField("isFreeHitNext")
-        freeHitField.isAccessible = true
-        freeHitField.set(engine, entity.isFreeHitNext)
-
-        val needsBowlerField = CricketEngine::class.java.getDeclaredField("needsBowlerSelection")
-        needsBowlerField.isAccessible = true
-        needsBowlerField.set(engine, entity.needsBowlerSelection)
-
-        val needsBatsmanField = CricketEngine::class.java.getDeclaredField("needsBatsmanSelection")
-        needsBatsmanField.isAccessible = true
-        needsBatsmanField.set(engine, entity.needsBatsmanSelection)
-
-        val dismissedStrikerField = CricketEngine::class.java.getDeclaredField("dismissedBatsmanWasStriker")
-        dismissedStrikerField.isAccessible = true
-        dismissedStrikerField.set(engine, entity.dismissedBatsmanWasStriker)
+        // Restore engine state without reflection (R8 and ProGuard safe)
+        engine.restoreSavedState(
+            status = MatchStatus.valueOf(entity.status),
+            currentInningsNumber = entity.currentInnings,
+            targetScore = entity.targetScore,
+            strikerId = entity.strikerId,
+            nonStrikerId = entity.nonStrikerId,
+            currentBowlerId = entity.currentBowlerId,
+            previousBowlerId = entity.previousBowlerId,
+            isFreeHitNext = entity.isFreeHitNext,
+            needsBowlerSelection = entity.needsBowlerSelection,
+            needsBatsmanSelection = entity.needsBatsmanSelection,
+            dismissedBatsmanWasStriker = entity.dismissedBatsmanWasStriker
+        )
 
         engine
     }
@@ -247,11 +220,23 @@ class CricketRepositoryImpl(
         matches: List<MatchEntity>,
         stats: List<PlayerCareerStatsEntity>
     ) = withContext(Dispatchers.IO) {
-        if (matches.isNotEmpty()) {
-            matchDao.insertMatches(matches)
-        }
-        if (stats.isNotEmpty()) {
-            playerCareerStatsDao.insertAll(stats)
+        val db = database
+        if (db != null) {
+            db.withTransaction {
+                if (matches.isNotEmpty()) {
+                    matchDao.insertMatches(matches)
+                }
+                if (stats.isNotEmpty()) {
+                    playerCareerStatsDao.insertAll(stats)
+                }
+            }
+        } else {
+            if (matches.isNotEmpty()) {
+                matchDao.insertMatches(matches)
+            }
+            if (stats.isNotEmpty()) {
+                playerCareerStatsDao.insertAll(stats)
+            }
         }
     }
 }

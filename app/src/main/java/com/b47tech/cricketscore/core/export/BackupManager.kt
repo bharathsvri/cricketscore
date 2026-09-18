@@ -75,10 +75,24 @@ object BackupManager {
         context.startActivity(chooser)
     }
 
+    private const val MAX_BACKUP_SIZE_BYTES = 25 * 1024 * 1024 // 25 MB safety limit
+
     fun readBackupFromUri(context: Context, uri: Uri): String? {
         return try {
             context.contentResolver.openInputStream(uri)?.use { stream ->
-                stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+                // Guard against huge files / memory exhaustion
+                val buffer = ByteArray(8192)
+                val output = java.io.ByteArrayOutputStream()
+                var totalBytes = 0
+                var read: Int
+                while (stream.read(buffer).also { read = it } != -1) {
+                    totalBytes += read
+                    if (totalBytes > MAX_BACKUP_SIZE_BYTES) {
+                        return null // File exceeds safety threshold
+                    }
+                    output.write(buffer, 0, read)
+                }
+                output.toString(Charsets.UTF_8.name())
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -91,9 +105,30 @@ object BackupManager {
         repository: CricketRepository
     ): Result<Int> {
         return try {
+            if (backupJson.length > MAX_BACKUP_SIZE_BYTES) {
+                return Result.failure(IllegalArgumentException("Backup payload exceeds maximum allowable size (25MB)."))
+            }
+
             val backupData = json.decodeFromString<CricketBackupData>(backupJson)
-            repository.restoreBackup(backupData.matches, backupData.playerStats)
-            Result.success(backupData.matches.size)
+
+            if (backupData.schemaVersion > 1) {
+                return Result.failure(IllegalArgumentException("Unsupported backup schema version: ${backupData.schemaVersion}. Please update the application."))
+            }
+
+            // Validate data integrity before committing to database
+            val validMatches = backupData.matches.filter { match ->
+                match.id.isNotBlank() && match.overs > 0 && match.playersPerTeam >= 1
+            }
+            val validStats = backupData.playerStats.filter { stat ->
+                stat.playerName.isNotBlank()
+            }
+
+            if (validMatches.isEmpty() && validStats.isEmpty()) {
+                return Result.failure(IllegalArgumentException("Backup file contains no valid cricket match or statistics records."))
+            }
+
+            repository.restoreBackup(validMatches, validStats)
+            Result.success(validMatches.size)
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)

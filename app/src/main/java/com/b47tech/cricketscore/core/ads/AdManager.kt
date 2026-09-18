@@ -11,6 +11,9 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.android.ump.ConsentInformation
+import com.google.android.ump.ConsentRequestParameters
+import com.google.android.ump.UserMessagingPlatform
 
 class AdManager private constructor() {
 
@@ -21,22 +24,96 @@ class AdManager private constructor() {
 
     private var rewardedAd: RewardedAd? = null
     private var isRewardedLoading = false
+    private var isMobileAdsInitialized = false
 
-    fun initialize(context: Context) {
+    /**
+     * Google recommended UMP consent gathering flow at application start.
+     * 1. Requests consent info update
+     * 2. Shows consent form if required
+     * 3. Initializes Mobile Ads only if permitted by consent
+     * 4. Fails gracefully so offline scoring is never blocked
+     */
+    fun gatherConsentAndInitialize(activity: Activity, onConsentGathered: (() -> Unit)? = null) {
         try {
-            MobileAds.initialize(context) {
-                // Preload an interstitial for when a match eventually completes
-                preloadInterstitial(context)
-                preloadRewarded(context)
+            val consentInformation = UserMessagingPlatform.getConsentInformation(activity)
+            val params = ConsentRequestParameters.Builder()
+                .setTagForUnderAgeOfConsent(false)
+                .build()
+
+            consentInformation.requestConsentInfoUpdate(
+                activity,
+                params,
+                {
+                    UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
+                        initializeMobileAdsIfPermitted(activity)
+                        onConsentGathered?.invoke()
+                    }
+                },
+                { requestConsentError ->
+                    // Device is offline or request failed; initialize if local policy allows
+                    initializeMobileAdsIfPermitted(activity)
+                    onConsentGathered?.invoke()
+                }
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            initializeMobileAdsIfPermitted(activity)
+            onConsentGathered?.invoke()
+        }
+    }
+
+    /**
+     * Initializes Mobile Ads SDK only if user consent permits ad requests.
+     */
+    fun initializeMobileAdsIfPermitted(context: Context) {
+        if (isMobileAdsInitialized) return
+        try {
+            val consentInfo = UserMessagingPlatform.getConsentInformation(context)
+            if (consentInfo.canRequestAds()) {
+                isMobileAdsInitialized = true
+                MobileAds.initialize(context) {
+                    preloadInterstitial(context)
+                    preloadRewarded(context)
+                }
             }
         } catch (e: Exception) {
-            // AdMob initialization failure must never disrupt application flow
             e.printStackTrace()
         }
     }
 
+    /**
+     * Checks if Google UMP requires displaying a Privacy Choices option in settings.
+     */
+    fun isPrivacyOptionsRequired(context: Context): Boolean {
+        return try {
+            val consentInfo = UserMessagingPlatform.getConsentInformation(context)
+            consentInfo.privacyOptionsRequirementStatus == ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Presents the Google UMP privacy options form so users can change consent choices anytime.
+     */
+    fun showPrivacyOptionsForm(activity: Activity, onDismiss: (() -> Unit)? = null) {
+        try {
+            UserMessagingPlatform.showPrivacyOptionsForm(activity) { formError ->
+                onDismiss?.invoke()
+            }
+        } catch (e: Exception) {
+            onDismiss?.invoke()
+        }
+    }
+
+    fun initialize(context: Context) {
+        initializeMobileAdsIfPermitted(context)
+    }
+
     fun preloadInterstitial(context: Context) {
         if (isAdLoading || interstitialAd != null) return
+        val consentInfo = try { UserMessagingPlatform.getConsentInformation(context) } catch (e: Exception) { null }
+        if (consentInfo != null && !consentInfo.canRequestAds()) return
 
         try {
             isAdLoading = true
@@ -110,6 +187,8 @@ class AdManager private constructor() {
 
     fun preloadRewarded(context: Context) {
         if (isRewardedLoading || rewardedAd != null) return
+        val consentInfo = try { UserMessagingPlatform.getConsentInformation(context) } catch (e: Exception) { null }
+        if (consentInfo != null && !consentInfo.canRequestAds()) return
 
         try {
             isRewardedLoading = true

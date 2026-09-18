@@ -18,7 +18,7 @@ class CricketApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         database = CricketDatabase.getDatabase(this)
-        repository = CricketRepositoryImpl(database.matchDao(), database.playerCareerStatsDao())
+        repository = CricketRepositoryImpl(database.matchDao(), database.playerCareerStatsDao(), database)
         settingsRepository = SettingsRepository(this)
 
         // Initialize centralized AdManager safely

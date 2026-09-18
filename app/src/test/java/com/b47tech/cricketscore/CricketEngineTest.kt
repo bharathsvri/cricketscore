@@ -295,4 +295,110 @@ class CricketEngineTest {
         assertTrue(result!!.isTie)
         assertTrue(result.resultSummary.contains("Match Tied"))
     }
+
+    @Test
+    fun testRetiredHurtDoesNotIncrementWicketsAndAllowedOnFreeHit() {
+        engine.startFirstInnings("A1", "A2", "B1")
+
+        // No ball triggers Free Hit
+        engine.recordNoBall(0, 0)
+        assertTrue(engine.isFreeHitNext)
+
+        // Striker A1 retires hurt on Free Hit
+        assertTrue("Retired Hurt should be permitted on a Free Hit", engine.recordWicket(WicketType.RETIRED_HURT, "A1"))
+
+        // Team total wickets must NOT increment for Retired Hurt
+        assertEquals(0, engine.getTotalWickets())
+
+        // Bowler B1 must NOT be credited with a wicket
+        val scorecard = engine.getInningsScorecard(1)
+        val bowler = scorecard.bowlers.first { it.playerId == "B1" }
+        assertEquals(0, bowler.wickets)
+
+        // A1 dismissal text should be 'retired hurt'
+        val a1 = scorecard.batters.first { it.playerId == "A1" }
+        assertTrue(a1.isOut)
+        assertEquals("retired hurt", a1.dismissalText)
+
+        // Free Hit was consumed
+        assertFalse(engine.isFreeHitNext)
+
+        // Must require batsman selection for next batter
+        assertTrue(engine.needsBatsmanSelection)
+        assertTrue(engine.selectNewBatsman("A3"))
+        assertEquals("A3", engine.strikerId)
+    }
+
+    @Test
+    fun testAllOutWhenRemainingBattersExhaustedWithRetiredHurt() {
+        // Create a 3-player match: max wickets = 2
+        val miniTeamA = Team("tA", "Team A", listOf(
+            Player("P1", "Player 1", "tA"),
+            Player("P2", "Player 2", "tA"),
+            Player("P3", "Player 3", "tA")
+        ))
+        val miniTeamB = Team("tB", "Team B", listOf(
+            Player("B1", "Player B1", "tB"),
+            Player("B2", "Player B2", "tB"),
+            Player("B3", "Player B3", "tB")
+        ))
+        val miniEngine = CricketEngine(
+            matchId = "mini-match",
+            teamA = miniTeamA,
+            teamB = miniTeamB,
+            totalOvers = 5,
+            playersPerTeam = 3,
+            ballType = "Leather",
+            tossWinnerId = "tA",
+            tossDecision = "BAT"
+        )
+        miniEngine.startFirstInnings("P1", "P2", "B1")
+
+        // 1st wicket: P1 bowled
+        assertTrue(miniEngine.recordWicket(WicketType.BOWLED, "P1"))
+        assertEquals(1, miniEngine.getTotalWickets())
+        assertTrue(miniEngine.needsBatsmanSelection)
+
+        // P3 comes in as last batsman
+        assertTrue(miniEngine.selectNewBatsman("P3"))
+        assertFalse(miniEngine.needsBatsmanSelection)
+
+        // P2 retires hurt -> No more batters left in team!
+        assertTrue(miniEngine.recordWicket(WicketType.RETIRED_HURT, "P2"))
+
+        // Innings must automatically transition to INNINGS_BREAK because no batters remain
+        assertEquals(MatchStatus.INNINGS_BREAK, miniEngine.status)
+        assertFalse(miniEngine.needsBatsmanSelection)
+    }
+
+    @Test
+    fun testRestoreSavedState() {
+        engine.startFirstInnings("A1", "A2", "B1")
+        engine.recordBoundary(true)
+
+        // Verify restoreSavedState directly sets engine fields safely without reflection
+        engine.restoreSavedState(
+            status = MatchStatus.INNINGS_BREAK,
+            currentInningsNumber = 1,
+            targetScore = 15,
+            strikerId = "A3",
+            nonStrikerId = "A2",
+            currentBowlerId = "B2",
+            previousBowlerId = "B1",
+            isFreeHitNext = true,
+            needsBowlerSelection = false,
+            needsBatsmanSelection = false,
+            dismissedBatsmanWasStriker = false
+        )
+
+        assertEquals(MatchStatus.INNINGS_BREAK, engine.status)
+        assertEquals(15, engine.targetScore)
+        assertEquals("A3", engine.strikerId)
+        assertEquals("A2", engine.nonStrikerId)
+        assertEquals("B2", engine.currentBowlerId)
+        assertEquals("B1", engine.previousBowlerId)
+        assertTrue(engine.isFreeHitNext)
+        assertFalse(engine.needsBowlerSelection)
+        assertFalse(engine.needsBatsmanSelection)
+    }
 }

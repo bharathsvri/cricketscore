@@ -2,6 +2,9 @@ package com.b47tech.cricketscore.ui.screens.settings
 
 import android.app.Activity
 import android.widget.Toast
+import com.b47tech.cricketscore.R
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -11,15 +14,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Policy
+import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.SportsCricket
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -285,7 +290,7 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.VolumeUp, contentDescription = "Feedback", tint = CricketGold)
+                        Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Feedback", tint = CricketGold)
                         Text(
                             text = "Sound & Vibration Feedback",
                             style = MaterialTheme.typography.titleMedium,
@@ -426,7 +431,7 @@ fun SettingsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -434,7 +439,7 @@ fun SettingsScreen(
                     ) {
                         Icon(Icons.Default.Lock, contentDescription = "Privacy", tint = CricketGreenLight)
                         Text(
-                            text = "Privacy & Offline Promise",
+                            text = "Privacy & Data Safety",
                             style = MaterialTheme.typography.titleMedium,
                             color = TextWhite,
                             fontWeight = FontWeight.Bold
@@ -442,10 +447,51 @@ fun SettingsScreen(
                     }
 
                     Text(
-                        text = "All match data and statistics are stored 100% locally on your device. B47 Cricket Score never transmits your personal data or match scores to external servers.",
+                        text = "Offline-first cricket scoring. Match scores, teams, player rosters, and match history are stored locally on your device. Core scoring works without an internet connection. Internet connectivity may be used for advertising and related Google Mobile Ads services.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextMuted
                     )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                val url = context.getString(R.string.privacy_policy_url)
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                try {
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Could not open Privacy Policy browser", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = CricketGold)
+                        ) {
+                            Icon(Icons.Default.Policy, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Privacy Policy", fontSize = 12.sp)
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                val activity = context as? Activity
+                                if (activity != null) {
+                                    AdManager.getInstance().showPrivacyOptionsForm(activity)
+                                } else {
+                                    Toast.makeText(context, "Privacy options unavailable in current state", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = TextWhite)
+                        ) {
+                            Icon(Icons.Default.PrivacyTip, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Privacy Choices", fontSize = 12.sp)
+                        }
+                    }
                 }
             }
 

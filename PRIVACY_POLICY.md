@@ -20,21 +20,27 @@ This Privacy Policy explains how our application handles user data.
 * **No Account Required**: The application does not require login, account registration, phone numbers, email addresses, or social media connections.
 * **No Cloud Syncing**: We do not transmit or store your cricket match records on any external server.
 
-### 2.2 Third-Party Advertising (Google AdMob)
-The app uses the Google Mobile Ads SDK (AdMob) to display advertisements. 
+### 2.2 Third-Party Advertising (Google Mobile Ads)
+The app integrates the Google Mobile Ads SDK (AdMob) to display advertisements. 
 
-Google AdMob may collect and process certain device information in accordance with Google's Privacy Policy:
-* **Device identifiers** (e.g., Google Advertising ID / GAID)
-* **Diagnostic and crash data**
-* **Approximate location information** (derived from IP address for ad localization)
+Google advertising technology may collect, process, and share certain information for advertising, personalization, analytics, fraud prevention, security, and app performance:
+* **Device and other identifiers**: Google Advertising ID (`com.google.android.gms.permission.AD_ID`), App Set ID, and device hardware/network identifiers.
+* **Product interaction data**: Ad impressions, clicks, video views, and interactions.
+* **Diagnostic information**: Crash logs, performance metrics, and SDK launch diagnostics.
+* **Approximate location**: Coarse geographic region derived from the device IP address for localized ad serving.
 
-For more details on how Google uses information from sites or apps that use its services, visit:  
+For full details on Google's data practices, please consult:  
 [https://policies.google.com/technologies/partner-sites](https://policies.google.com/technologies/partner-sites)
+
+### 2.3 User Consent & Privacy Choices (Google UMP)
+B47 Cricket Score implements Google's User Messaging Platform (UMP) SDK to respect applicable regional privacy laws (including GDPR, UK GDPR, and US state privacy regulations):
+* When required by law, users are presented with a consent management dialog on first launch to make choices regarding personalized advertising, non-personalized advertising, and measurement cookies/identifiers.
+* **Changing Your Privacy Choices**: Users can review or withdraw their consent at any time by navigating to **Settings > Privacy Choices** in the application.
 
 ---
 
-## 3. Children’s Privacy
-B47 Cricket Score does not knowingly collect personally identifiable information from children under the age of 13. All core scoring features function offline without collecting personal data.
+## 3. Children’s Privacy & Target Audience
+B47 Cricket Score is a sports utility application designed for cricket enthusiasts, coaches, teams, and match organizers aged 13 and older. The application does not intentionally collect personal data from children under 13. All core scoring calculations and team data are kept offline on the device. Advertising requests adhere to Google AdMob's applicable age-appropriate policies.
 
 ---
 
@@ -59,4 +65,7 @@ We may update our Privacy Policy from time to time. You are advised to review th
 ## 7. Contact Us
 If you have any questions or suggestions about this Privacy Policy, please contact us:
 * **Developer:** B47 Tech
-* **Email:** support@b47tech.com
+* **Email:** privacy@b47tech.com (or support@b47tech.com)
+* **GitHub Repository:** https://github.com/bharathsvri/cricketscore
+* **Live Hosted Policy:** https://bharathsvri.github.io/cricketscore/
+

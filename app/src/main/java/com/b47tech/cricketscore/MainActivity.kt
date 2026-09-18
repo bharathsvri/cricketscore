@@ -8,6 +8,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.rememberNavController
+import com.b47tech.cricketscore.core.ads.AdManager
 import com.b47tech.cricketscore.ui.navigation.AppNavHost
 import com.b47tech.cricketscore.ui.theme.B47CricketScoreTheme
 
@@ -19,6 +20,9 @@ class MainActivity : ComponentActivity() {
         val app = application as CricketApplication
         val repository = app.repository
         val settingsRepository = app.settingsRepository
+
+        // Gather Google UMP consent and initialize ads only if permitted
+        AdManager.getInstance().gatherConsentAndInitialize(this)
 
         setContent {
             val settings by settingsRepository.settings.collectAsState()

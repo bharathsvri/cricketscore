@@ -105,6 +105,32 @@ class CricketEngine(
         stateSnapshots2.clear()
     }
 
+    fun restoreSavedState(
+        status: MatchStatus,
+        currentInningsNumber: Int,
+        targetScore: Int?,
+        strikerId: String?,
+        nonStrikerId: String?,
+        currentBowlerId: String?,
+        previousBowlerId: String?,
+        isFreeHitNext: Boolean,
+        needsBowlerSelection: Boolean,
+        needsBatsmanSelection: Boolean,
+        dismissedBatsmanWasStriker: Boolean
+    ) {
+        this.status = status
+        this.currentInningsNumber = currentInningsNumber
+        this.targetScore = targetScore
+        this.strikerId = strikerId
+        this.nonStrikerId = nonStrikerId
+        this.currentBowlerId = currentBowlerId
+        this.previousBowlerId = previousBowlerId
+        this.isFreeHitNext = isFreeHitNext
+        this.needsBowlerSelection = needsBowlerSelection
+        this.needsBatsmanSelection = needsBatsmanSelection
+        this.dismissedBatsmanWasStriker = dismissedBatsmanWasStriker
+    }
+
     fun currentBattingTeam(): Team = if (currentInningsNumber == 1) battingFirstTeam else bowlingFirstTeam
     fun currentBowlingTeam(): Team = if (currentInningsNumber == 1) bowlingFirstTeam else battingFirstTeam
 
@@ -397,9 +423,13 @@ class CricketEngine(
         val nsId = nonStrikerId ?: return false
         val bId = currentBowlerId ?: return false
 
-        // Free hit rule: Can only be out via RUN_OUT on Free Hit
-        if (isFreeHitNext && (wicketType != WicketType.RUN_OUT_STRIKER && wicketType != WicketType.RUN_OUT_NON_STRIKER)) {
-            // Batsman cannot be dismissed on Free Hit for non run-out
+        // Free Hit Rule (ICC Clause 21.19 / MCC Law 21):
+        // Striker cannot be dismissed except for methods permitted on a No Ball:
+        // Run Out or Batter Retiring Hurt.
+        if (isFreeHitNext && (wicketType != WicketType.RUN_OUT_STRIKER &&
+                wicketType != WicketType.RUN_OUT_NON_STRIKER &&
+                wicketType != WicketType.RETIRED_HURT)
+        ) {
             return false
         }
 
@@ -448,17 +478,26 @@ class CricketEngine(
             rotateStrike()
         }
 
-        // Check if all out
+        if (isStrikerDismissed) {
+            strikerId = null
+        } else {
+            nonStrikerId = null
+        }
+
+        // Check if all out (max wickets reached OR no partner remaining to bat)
         val totalWicketsNow = getTotalWickets()
-        val isAllOut = totalWicketsNow >= maxWickets
+        val battingTeam = currentBattingTeam()
+        val alreadyBattedIds = getInningsScorecard(currentInningsNumber).batters
+            .filter { it.isOut || it.playerId == strikerId || it.playerId == nonStrikerId }
+            .map { it.playerId }
+        val remainingBatters = battingTeam.players.count { !alreadyBattedIds.contains(it.id) }
+        val battersAtCrease = (if (strikerId != null) 1 else 0) + (if (nonStrikerId != null) 1 else 0)
+        val isAllOut = totalWicketsNow >= maxWickets || (battersAtCrease < 2 && remainingBatters == 0)
 
         if (!isAllOut) {
             needsBatsmanSelection = true
-            if (isStrikerDismissed) {
-                strikerId = null
-            } else {
-                nonStrikerId = null
-            }
+        } else {
+            needsBatsmanSelection = false
         }
 
         handleDeliveryEnd(ballInOver == 6)
@@ -484,7 +523,14 @@ class CricketEngine(
         val legalBalls = getLegalBallsBowled()
         val totalBallsInInnings = totalOvers * 6
         val isOversFinished = legalBalls >= totalBallsInInnings
-        val isAllOut = currentWickets >= maxWickets
+
+        val battingTeam = currentBattingTeam()
+        val alreadyBattedIds = getInningsScorecard(currentInningsNumber).batters
+            .filter { it.isOut || it.playerId == strikerId || it.playerId == nonStrikerId }
+            .map { it.playerId }
+        val remainingBatters = battingTeam.players.count { !alreadyBattedIds.contains(it.id) }
+        val battersAtCrease = (if (strikerId != null) 1 else 0) + (if (nonStrikerId != null) 1 else 0)
+        val isAllOut = currentWickets >= maxWickets || (battersAtCrease < 2 && remainingBatters == 0)
 
         if (currentInningsNumber == 1) {
             if (isOversFinished || isAllOut) {

@@ -78,7 +78,7 @@ This `.aab` file is the exact file to upload to the **Google Play Console** unde
      > - **Comprehensive Dismissals:** Bowled, Caught, Run Out (striker/non-striker), LBW, Stumped, and Hit Wicket.
      > - **Dual-Innings Scorecard:** Full batting and bowling tables, strike rates, economy, maidens, extras, and Fall of Wickets.
      > - **Player Career Statistics:** Track aggregate runs, high scores, batting averages, wickets, and bowling averages.
-     > - **100% Offline:** No login, no sign-up, no internet required to score matches.
+     > - **Offline-First:** No login, no sign-up, no internet required to score matches.
      > 
      > Developed by B47 Tech.
 3. **Store Listing Assets**:

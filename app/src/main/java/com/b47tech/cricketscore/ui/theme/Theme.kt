@@ -53,9 +53,14 @@ fun B47CricketScoreTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = CricketGreenDark.toArgb()
-            window.navigationBarColor = DarkBg.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            @Suppress("DEPRECATION")
+            if (android.os.Build.VERSION.SDK_INT < 35) {
+                window.statusBarColor = CricketGreenDark.toArgb()
+                window.navigationBarColor = DarkBg.toArgb()
+            }
+            val insetsController = WindowCompat.getInsetsController(window, view)
+            insetsController.isAppearanceLightStatusBars = false
+            insetsController.isAppearanceLightNavigationBars = false
         }
     }
 

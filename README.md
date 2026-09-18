@@ -43,11 +43,11 @@ Designed and developed by **B47 Tech** for publication on the **Google Play Stor
   - Resume any unfinished match right from where you stopped.
   - View full scorecards of past matches anytime.
 * **Play Store Production-Ready**:
-  - Target SDK 35 (Android 15 compliant).
-  - Google Mobile Ads SDK (AdMob) integrated with test banner units and production placeholders.
+  - Target SDK 36 (Android 16 compliant).
+  - Google Mobile Ads SDK (AdMob) integrated with official test units and production release IDs.
   - ProGuard/R8 optimizations enabled.
   - Adaptive launcher vector icons.
-  - 100% offline-first, zero login required.
+  - Offline-first cricket scoring, zero login required.
 
 ---
 
@@ -60,8 +60,8 @@ Designed and developed by **B47 Tech** for publication on the **Google Play Stor
 * **Local Database**: Android Jetpack Room with Kotlin Coroutines Flow
 * **Serialization**: Kotlinx Serialization JSON
 * **Navigation**: Navigation Compose
-* **Monetization**: Google Mobile Ads (AdMob)
-* **SDK Compatibility**: `minSdk = 26`, `compileSdk = 35`, `targetSdk = 35`
+* **Monetization**: Google Mobile Ads (AdMob) with Google UMP Consent
+* **SDK Compatibility**: `minSdk = 26`, `compileSdk = 36`, `targetSdk = 36`
 
 ---
 

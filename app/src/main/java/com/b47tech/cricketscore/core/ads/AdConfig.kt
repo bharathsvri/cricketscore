@@ -1,5 +1,7 @@
 package com.b47tech.cricketscore.core.ads
 
+import com.b47tech.cricketscore.BuildConfig
+
 object AdConfig {
     // Official Google AdMob Test Ad Units
     const val TEST_BANNER_AD_UNIT_ID = "ca-app-pub-3940256099942544/9214589741"
@@ -7,9 +9,19 @@ object AdConfig {
     const val TEST_REWARDED_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
 
     // Production ad unit IDs
-    var bannerAdUnitId: String = "ca-app-pub-2828717457589648/3631101662"
-    var interstitialAdUnitId: String = "ca-app-pub-2828717457589648/7378774984"
-    var rewardedAdUnitId: String = "ca-app-pub-2828717457589648/4882630278"
+    const val PROD_APPLICATION_ID = "ca-app-pub-2828717457589648~1473868300"
+    const val PROD_BANNER_AD_UNIT_ID = "ca-app-pub-2828717457589648/3631101662"
+    const val PROD_INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-2828717457589648/7378774984"
+    const val PROD_REWARDED_AD_UNIT_ID = "ca-app-pub-2828717457589648/4882630278"
+
+    val bannerAdUnitId: String
+        get() = if (BuildConfig.DEBUG) TEST_BANNER_AD_UNIT_ID else PROD_BANNER_AD_UNIT_ID
+
+    val interstitialAdUnitId: String
+        get() = if (BuildConfig.DEBUG) TEST_INTERSTITIAL_AD_UNIT_ID else PROD_INTERSTITIAL_AD_UNIT_ID
+
+    val rewardedAdUnitId: String
+        get() = if (BuildConfig.DEBUG) TEST_REWARDED_AD_UNIT_ID else PROD_REWARDED_AD_UNIT_ID
 
     // Ad policy rules
     const val INTERSTITIAL_COOLDOWN_MS = 60_000L // Minimum 60 seconds between interstitials
