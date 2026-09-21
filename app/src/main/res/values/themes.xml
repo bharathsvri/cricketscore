@@ -1,6 +1,0 @@
-<resources>
-    <style name="Theme.B47CricketScore" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/cricket_green_dark</item>
-        <item name="android:navigationBarColor">@color/dark_bg</item>
-    </style>
-</resources>
